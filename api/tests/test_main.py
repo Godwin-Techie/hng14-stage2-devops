@@ -32,3 +32,4 @@ def test_get_job_not_found():
 
     assert response.status_code == 200
     assert "error" in response.json()
+    
