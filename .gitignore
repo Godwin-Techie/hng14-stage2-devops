@@ -15,6 +15,9 @@ yarn-error.log
 *.pid
 *.sock
 
+evironment files
+.env
+*.env
 
 # Build artifacts
 dist/
