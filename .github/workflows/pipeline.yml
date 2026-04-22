@@ -7,5 +7,41 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ---------------- Python Lint (flake8) ----------------
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install flake8
+        run: pip install flake8
+
+      - name: Run Python lint
+        run: flake8 api worker
+
+      # ---------------- JavaScript Lint (eslint) ----------------
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Install eslint
+        run: npm install -g eslint
+
+      - name: Run JS lint
+        run: eslint frontend
+
+      # ---------------- Dockerfile Lint (hadolint) ----------------
+      - name: Install hadolint
+        run: |
+          wget -O hadolint https://github.com/hadolint/hadolint/releases/latest/download/hadolint-Linux-x86_64
+          chmod +x hadolint
+          sudo mv hadolint /usr/local/bin/
+
+      - name: Run Docker lint
+        run: hadolint api/Dockerfile worker/Dockerfile frontend/Dockerfile
