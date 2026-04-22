@@ -1,73 +1,220 @@
-Job Processing System (API + Worker + Redis + Frontend)
+# Building a Full-Stack DevOps System with CI/CD, Docker, Redis, and GitHub Actions (HNG Stage 2 Project)
 
-Overview
+# Introduction
 
-This project is a simple distributed job processing system built with:
+This project demonstrates a complete DevOps workflow for a containerized full-stack system. It includes a frontend, backend API, worker service, Redis queue, and a fully automated CI/CD pipeline using GitHub Actions.
 
-- FastAPI (Backend API)
-- Redis (Queue)
-- Python Worker (Background processing)
-- Node.js (Frontend)
+The goal is to simulate a real-world production system with proper software engineering and DevOps practices: testing, linting, security scanning, integration testing, and automated deployment.
+
+# System Architecture
+
+The system is composed of four core services:
+
+- Frontend → User interface for interacting with the system
+- API (FastAPI) → Handles job creation and status tracking
+- Worker Service → Processes jobs asynchronously from Redis
+- Redis → Message broker for queue management
+
+# Data Flow
+
+1. User submits a job via frontend or API
+2. API pushes job ID into Redis queue
+3. Worker consumes job from Redis
+4. Worker processes job and updates status
+5. API retrieves updated status
+
+This architecture ensures asynchronous processing, scalability, and decoupled services.
+
+# Technologies Used
+
+- FastAPI (Python backend)
+- Redis (queue system)
+- Node.js (frontend)
 - Docker & Docker Compose
+- GitHub Actions (CI/CD)
+- Pytest (testing)
+- Flake8 (Python linting)
+- ESLint (JavaScript linting)
+- Hadolint (Docker linting)
+- Trivy (security scanning)
 
-Features
+# Project Structure
 
-- Submit background jobs
-- Track job status in real-time
-- Asynchronous processing using Redis queue
-- Fully containerized system
+hng14-stage2-devops/
+│
+├── api/ (FastAPI backend)
+├── worker/ (Background job processor)
+├── frontend/ (UI application)
+├── docker-compose.yml
+├── .github/workflows/
+│ └── pipeline.yml
+└── README.md
 
-Project Structure
+# Running the Project Locally
 
-- `/api` – FastAPI backend
-- `/worker` – Background worker
-- `/frontend` – Node.js frontend
-- `docker-compose.yml` – Service orchestration
+# 1. Clone the repository
 
-Run Locally (Without Docker)
+```bash
+git https://github.com/Godwin-Techie/hng14-stage2-devops.git
+cd hng14-stage2-devops
+```
 
-# 1. Start Redis
+# 2. Start all services
 
-docker run -d -p 6379:6379 redis
+```bash
+docker compose up --build
+```
 
-# 2. Start API
+# Access Services
 
-cd api
-uvicorn main:app --reload
+| Service  | URL                     |
+| -------- | ----------------------- |
+| Frontend | [http://localhost:3000] |
+| API      | [http://localhost:8000] |
+| Redis    | Internal only           |
 
-3.  Start Worker
+# API Endpoints
 
-cd worker
-python worker.py
+# Create a Job
 
-4.  Start Frontend
+POST/jobs
 
-cd frontend
-node app.js
+# Response
 
----
+{
+"id": "uuid",
+"status": "submitted"
+}
 
-Run with Docker
+# Get Job Status
 
-docker-compose up --build
+GET /jobs/{job_id}
 
----
+# Response
 
-Access App
+{
+"job_id": "uuid",
+"status": "queued | processing | completed"
+}
 
-Frontend: http://localhost:3000
-API: http://localhost:8000
+# System Behavior
 
----
+When the system is running correctly:
+API receives requests
+Jobs are queued in Redis
+Worker processes jobs in background
+Status is updated dynamically
+Frontend reflects real-time updates
 
-Notes
+# Testing Strategy
 
-- Uses environment-based API URL switching for local vs Docker
-- Redis queue name standardized as "jobs"
-- Worker processes jobs asynchronously
+The project includes automated tests using Pytest.
+Run tests locally:
 
----
+```bash
+pip install -r api/requirements.txt
+PYTHONPATH=. pytest api/tests --cov=api
+```
 
-Author
+# What is tested:
 
-Godwin Erharuyi
+-API endpoint functionality
+-Job creation logic
+-Redis queue interactions (mocked)
+
+# Environment Variables
+
+-REDIS_HOST=redis
+-REDIS_PORT=6379
+-API_URL=http://localhost:8000
+-APP_ENV=production
+
+# CI/CD Pipeline Overview
+
+The project uses GitHub Actions to automate the entire software lifecycle.
+
+# Pipeline Flow:
+
+lint → test → build → security scan → integration test → deploy
+
+# CI/CD Breakdown
+
+# 1. Lint Stage
+
+-Ensures code quality:
+-Python: Flake8
+-JavaScript: ESLint
+-Docker: Hadolint
+
+# 2. Test Stage
+
+-Runs Pytest unit tests
+-Uses mocked Redis
+-Generates coverage reports
+
+# 3. Build Stage
+
+-Builds Docker images for all services
+-Tags images with commit SHA
+
+# 4. Security Stage
+
+-Runs Trivy vulnerability scan
+-Fails pipeline on CRITICAL issues
+
+# 5. Integration Stage
+
+-Spins up full system in CI environment
+-Sends real HTTP requests
+-Validates response correctness
+
+# 6. Deployment Stage
+
+-Stops old container
+-Builds new image
+-Starts updated container
+-Ensures safe rollout
+
+# Deployment Strategy
+
+-A simple rolling deployment approach:
+-Stop existing container
+-Build new Docker image
+-Start new container
+-Verify service health
+-Replace old version safely
+
+# Expected Output
+
+When system is running correctly:
+-API → Running on http://0.0.0.0:8000
+-Worker → Listening for jobs
+-Redis → Active queue system
+-Frontend → Running on http://localhost:3000
+
+# Key DevOps Concepts Demonstrated
+
+This project demonstrates:
+-Microservices architecture
+-Container orchestration
+-CI/CD automation
+-Security scanning
+-Test-driven development
+-Infrastructure as code principles
+-Stateless service design
+
+# Stopping the System
+
+```bash
+docker compose down
+```
+
+# Why This Project Matters
+
+This system simulates a real production environment, where:
+-Services are decoupled
+-Jobs are processed asynchronously
+-Deployments are automated
+-Code quality is enforced before deployment
+
+-It reflects how modern backend systems are built in industry environments.
