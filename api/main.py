@@ -3,13 +3,15 @@ import redis
 import uuid
 import os
 
+
 app = FastAPI()
 
 r = redis.Redis(
     host=os.getenv("REDIS_HOST", "redis"),
-  port = int(os.getenv("REDIS_PORT") or "6379"),
+    port=int(os.getenv("REDIS_PORT", "6379")),
     decode_responses=True
 )
+
 
 @app.post("/jobs")
 def create_job():
@@ -17,6 +19,7 @@ def create_job():
     r.lpush("jobs", job_id)
     r.hset(f"job:{job_id}", "status", "queued")
     return {"id": job_id, "status": "submitted"}
+
 
 @app.get("/jobs/{job_id}")
 def get_job(job_id: str):
@@ -27,7 +30,7 @@ def get_job(job_id: str):
         return {"job_id": job_id, "status": status}
     except Exception as e:
         return {"error": str(e)}
-        
+
 
 @app.get("/")
 def read_root():
