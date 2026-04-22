@@ -1,6 +1,6 @@
-# Job Processing System (API + Worker + Redis + Frontend)
+Job Processing System (API + Worker + Redis + Frontend)
 
-## Overview
+Overview
 
 This project is a simple distributed job processing system built with:
 
@@ -10,57 +10,57 @@ This project is a simple distributed job processing system built with:
 - Node.js (Frontend)
 - Docker & Docker Compose
 
-## Features
+Features
 
 - Submit background jobs
 - Track job status in real-time
 - Asynchronous processing using Redis queue
 - Fully containerized system
 
-## Project Structure
+Project Structure
 
 - `/api` – FastAPI backend
 - `/worker` – Background worker
 - `/frontend` – Node.js frontend
 - `docker-compose.yml` – Service orchestration
 
-## Run Locally (Without Docker)
+Run Locally (Without Docker)
 
-### 1. Start Redis
+# 1. Start Redis
 
 docker run -d -p 6379:6379 redis
 
-### 2. Start API
+# 2. Start API
 
 cd api
 uvicorn main:app --reload
 
-### 3. Start Worker
+3.  Start Worker
 
 cd worker
 python worker.py
 
-### 4. Start Frontend
+4.  Start Frontend
 
 cd frontend
 node app.js
 
 ---
 
-## Run with Docker
+Run with Docker
 
 docker-compose up --build
 
 ---
 
-## Access App
+Access App
 
 Frontend: http://localhost:3000
 API: http://localhost:8000
 
 ---
 
-## Notes
+Notes
 
 - Uses environment-based API URL switching for local vs Docker
 - Redis queue name standardized as "jobs"
@@ -68,6 +68,6 @@ API: http://localhost:8000
 
 ---
 
-## Author
+Author
 
 Godwin Erharuyi
