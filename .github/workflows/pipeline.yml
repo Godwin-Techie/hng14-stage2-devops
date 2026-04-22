@@ -33,8 +33,10 @@ jobs:
       - name: Install eslint
         run: npm install -g eslint
 
+      # 🔥 FIX: run eslint inside frontend directory
       - name: Run JS lint
-        run: eslint frontend
+        working-directory: frontend
+        run: eslint .
 
       # ---------------- Dockerfile Lint (hadolint) ----------------
       - name: Install hadolint
