@@ -1,0 +1,72 @@
+version: "3.9"
+
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    environment:
+      API_URL: http://api:8000
+    depends_on:
+      api:
+        condition: service_started
+    networks:
+      - app-network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+    restart: unless-stopped
+
+  api:
+    build: ./api
+    ports:
+      - "8000:8000"
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+    depends_on:
+      redis:
+        condition: service_started
+    networks:
+      - app-network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+    restart: unless-stopped
+
+  worker:
+    build: ./worker
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+    depends_on:
+      redis:
+        condition: service_started
+    networks:
+      - app-network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+    restart: unless-stopped
+
+  redis:
+    image: redis:7
+    # ❌ NO ports exposed (meets requirement)
+    networks:
+      - app-network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.3"
+          memory: 256M
+    restart: unless-stopped
+
+networks:
+  app-network:
+    driver: bridge

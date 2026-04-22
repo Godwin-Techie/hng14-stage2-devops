@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Job Dashboard</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        max-width: 600px;
+        margin: 40px auto;
+        padding: 0 20px;
+      }
+      button {
+        padding: 10px 20px;
+        cursor: pointer;
+      }
+      #result {
+        margin-top: 20px;
+        padding: 10px;
+        background: #f4f4f4;
+        border-radius: 4px;
+      }
+      #jobs {
+        margin-top: 20px;
+      }
+      .job {
+        padding: 8px;
+        border-bottom: 1px solid #ddd;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Job Processor Dashboard</h1>
+    <button onclick="submitJob()">Submit New Job</button>
+    <div id="result"></div>
+    <div id="jobs"></div>
+
+    <script>
+      const jobIds = [];
+
+      async function submitJob() {
+        try {
+          document.getElementById("result").innerText = "Submitting...";
+
+          const res = await fetch("/submit", { method: "POST" });
+          const data = await res.json();
+
+          document.getElementById("result").innerText = `Submitted: ${data.id}`;
+          jobIds.push(data.id);
+          pollJob(data.id);
+        } catch (err) {
+          console.error("Submit failed:", err);
+          document.getElementById("result").innerText = "Error submitting job";
+        }
+      }
+
+      async function pollJob(id, attempts = 0) {
+        if (attempts > 10) return;
+
+        try {
+          const res = await fetch(`/status/${id}`);
+          const data = await res.json();
+
+          const status = data.status || "unknown";
+          renderJob(id, status);
+
+          if (status !== "completed") {
+            setTimeout(() => pollJob(id, attempts + 1), 2000);
+          }
+        } catch (err) {
+          console.error("Polling failed:", err);
+        }
+      }
+
+      function renderJob(id, status) {
+        let el = document.getElementById(id);
+        if (!el) {
+          el = document.createElement("div");
+          el.className = "job";
+          el.id = id;
+          document.getElementById("jobs").appendChild(el);
+        }
+        el.innerText = `Job ${id.substring(0, 8)}... — ${status}`;
+      }
+    </script>
+  </body>
+</html>
