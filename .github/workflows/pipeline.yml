@@ -32,7 +32,7 @@ jobs:
       - name: Install eslint
         run: npm install -g eslint
 
-      #  FIX: run eslint inside frontend directory
+      # FIX: run eslint inside frontend directory
       - name: Run JS lint
         working-directory: frontend
         run: eslint .
@@ -67,6 +67,12 @@ jobs:
       - name: Run tests with coverage
         run: PYTHONPATH=. pytest api/tests --cov=api --cov-report=xml
 
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
+
   build:
     runs-on: ubuntu-latest
     needs: test
@@ -79,13 +85,13 @@ jobs:
         run: echo "SHA=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
       - name: Build API image
-        run: docker build -t api:${{ steps.vars.outputs.SHA }} ./api
+        run: docker build -t api:${{ steps.vars.outputs.SHA }} -t api:latest ./api
 
       - name: Build Worker image
-        run: docker build -t worker:${{ steps.vars.outputs.SHA }} ./worker
+        run: docker build -t worker:${{ steps.vars.outputs.SHA }} -t worker:latest ./worker
 
       - name: Build Frontend image
-        run: docker build -t frontend:${{ steps.vars.outputs.SHA }} ./frontend
+        run: docker build -t frontend:${{ steps.vars.outputs.SHA }} -t frontend:latest ./frontend
 
   security:
     runs-on: ubuntu-latest
@@ -106,14 +112,22 @@ jobs:
         id: vars
         run: echo "SHA=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
-      - name: Scan API image
-        run: trivy image api:${{ steps.vars.outputs.SHA }} || true
+      - name: Scan API image (fail on CRITICAL)
+        run: trivy image --severity CRITICAL --exit-code 1 api:${{ steps.vars.outputs.SHA }}
 
-      - name: Scan Worker image
-        run: trivy image worker:${{ steps.vars.outputs.SHA }} || true
+      - name: Scan Worker image (fail on CRITICAL)
+        run: trivy image --severity CRITICAL --exit-code 1 worker:${{ steps.vars.outputs.SHA }}
 
-      - name: Scan Frontend image
-        run: trivy image frontend:${{ steps.vars.outputs.SHA }} || true
+      - name: Scan Frontend image (fail on CRITICAL)
+        run: trivy image --severity CRITICAL --exit-code 1 frontend:${{ steps.vars.outputs.SHA }}
+
+      - name: Generate SARIF report
+        run: trivy image --format sarif -o trivy.sarif api:${{ steps.vars.outputs.SHA }}
+
+      - name: Upload SARIF report
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy.sarif
 
   integration:
     runs-on: ubuntu-latest
