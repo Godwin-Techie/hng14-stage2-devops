@@ -66,3 +66,24 @@ jobs:
 
       - name: Run tests with coverage
         run: PYTHONPATH=. pytest api/tests --cov=api --cov-report=xml
+
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get commit SHA
+        id: vars
+        run: echo "SHA=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Build API image
+        run: docker build -t api:${{ steps.vars.outputs.SHA }} ./api
+
+      - name: Build Worker image
+        run: docker build -t worker:${{ steps.vars.outputs.SHA }} ./worker
+
+      - name: Build Frontend image
+        run: docker build -t frontend:${{ steps.vars.outputs.SHA }} ./frontend
