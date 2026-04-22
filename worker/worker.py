@@ -1,7 +1,6 @@
 import redis
 import time
 import os
-import signal
 
 # Use environment variables so it works locally and in Docker
 r = redis.Redis(
