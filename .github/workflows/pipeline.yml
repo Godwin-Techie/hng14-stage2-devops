@@ -146,3 +146,26 @@ jobs:
 
       - name: Test API endpoint
         run: curl http://localhost:8000
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: integration
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get commit SHA
+        id: vars
+        run: echo "SHA=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Stop old container (if exists)
+        run: |
+          docker stop api-prod || true
+          docker rm api-prod || true
+
+      - name: Run new container
+        run: |
+          docker run -d -p 8000:8000 \
+          --name api-prod \
+          api:${{ steps.vars.outputs.SHA }}
