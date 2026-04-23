@@ -190,10 +190,8 @@ jobs:
       - name: Wait for API to start
         run: sleep 5
 
-      - name: Test API from inside network
-        run: |
-          docker ps 
-          docker compose exec -T api curl http://localhost:8000
+      - name: Run integration tests
+        run: ./integration.sh
 
       - name: Tear down containers
         if: always()
