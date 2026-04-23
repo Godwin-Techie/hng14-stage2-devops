@@ -4,9 +4,10 @@ set -e
 # Bring up stack
 docker compose up -d --build
 
-# Wait for API to be healthy
+API_PORT=$(docker compose port api 8000 | cut -d: -f2)
+
 for i in {1..20}; do
-  if docker compose exec -T api curl -f http://localhost:8000; then
+  if curl -f http://localhost:$API_PORT/; then
     echo "API is ready"
     break
   fi
@@ -14,8 +15,9 @@ for i in {1..20}; do
   sleep 5
 done
 
-# Run integration test
-docker compose exec -T api curl http://localhost:8000/api/example
+curl http://localhost:$API_PORT/api/example
+
+
 
 # Tear down
 docker compose down
