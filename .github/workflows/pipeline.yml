@@ -182,7 +182,7 @@ jobs:
         run: sleep 5
 
       - name: Test API endpoint
-        run: curl http://localhost:8000
+        run: curl http://api:8000
 
       - name: Tear down containers
         if: always()
