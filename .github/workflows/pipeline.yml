@@ -194,7 +194,9 @@ jobs:
         run: chmod +x ./integration.sh
 
       - name: Run integration tests
-        run: ./integration.sh
+        run: |
+          export $(cat .env | xargs)
+          ./integration.sh
 
       - name: Tear down containers
         if: always()

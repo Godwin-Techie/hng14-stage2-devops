@@ -1,9 +1,8 @@
 API SERVICES
 
-1. api/.env/
-   file: .env/
-   Issue: .env/ file is not suppose to be pushed to a Repo
-   fix: moved it to the root folder and add it to .gitignore
+1. file: README.md
+   issue: not properly documented
+   fixed: added a well structed write-up that explains how to bring the entire stack up on a clean machine from scratch — list prerequisites, all commands, and what a successful startup looks like.
 
 2. File: api/main.py  
    Line: 9  
@@ -135,7 +134,3 @@ MISSING FILES/CONFIGURATIONS
 27. File: docker-compose.yml  
     Issue: No Compose file was present to orchestrate the stack.  
     Fix: Added `docker-compose.yml` with named internal network, dependency health checks, resource limits, and environment variable configuration.
-
-28. file: README.md
-    issue: not properly documented
-    fixed: added a well structed write-up that explains how to bring the entire stack up on a clean machine from scratch — list prerequisites, all commands, and what a successful startup looks like.
