@@ -1,11 +1,14 @@
 from fastapi.testclient import TestClient
 from main import app
 
+
 client = TestClient(app)
+
 
 def test_healthcheck():
     response = client.get("/")
     assert response.status_code == 200
+
 
 def test_redis_connection(monkeypatch):
     # mock redis client
@@ -14,6 +17,7 @@ def test_redis_connection(monkeypatch):
     # your app should handle bad redis gracefully
     response = client.get("/redis-status")
     assert response.status_code in (200, 503)
+
 
 def test_example_endpoint():
     response = client.get("/api/example")
