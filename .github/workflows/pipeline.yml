@@ -135,7 +135,7 @@ jobs:
         run: trivy image --severity CRITICAL frontend:${{ steps.vars.outputs.SHA }}
 
       - name: Generate SARIF report (API)
-        run: trivy image --format sarif -o trivy.sarif api:${{ steps.vars.outputs.SHA }} || true
+        run: trivy image --format sarif -o trivy-api.sarif api:${{ steps.vars.outputs.SHA }} || true
 
       - name: Generate SARIF report (Worker)
         run: trivy image --format sarif -o trivy-worker.sarif worker:${{ steps.vars.outputs.SHA }} || true
