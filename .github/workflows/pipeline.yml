@@ -130,13 +130,29 @@ jobs:
       - name: Scan Frontend image (non-blocking)
         run: trivy image --severity CRITICAL frontend:${{ steps.vars.outputs.SHA }}
 
-      - name: Generate SARIF report
-        run: trivy image --format sarif -o trivy.sarif :${{ steps.vars.outputs.SHA }}
+      - name: Generate SARIF report (API)
+        run: trivy image --format sarif -o trivy.sarif api:${{ steps.vars.outputs.SHA }}
 
-      - name: Upload SARIF report
+      - name: Generate SARIF report (Worker)
+        run: trivy image --format sarif -o trivy-worker.sarif worker:${{ steps.vars.outputs.SHA }}
+
+      - name: Generate SARIF report (Frontend)
+        run: trivy image --format sarif -o trivy-frontend.sarif frontend:${{ steps.vars.outputs.SHA }}
+
+      - name: Upload SARIF report (API)
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: trivy.sarif
+          sarif_file: trivy-api.sarif
+
+      - name: Upload SARIF report (Worker)
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-worker.sarif
+
+      - name: Upload SARIF report (Frontend)
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-frontend.sarif
 
   integration:
     runs-on: ubuntu-latest
