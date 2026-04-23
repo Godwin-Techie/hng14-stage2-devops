@@ -126,22 +126,22 @@ jobs:
         run: echo "SHA=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
       - name: Build API image
-        run: docker build -t api:${{ steps.vars.outputs.SHA }} -t api:latest ./api
+        run: docker build -t api:${{ github.sha }} -t api:latest ./api
 
       - name: Build Worker image
-        run: docker build -t worker:${{ steps.vars.outputs.SHA }} -t worker:latest ./worker
+        run: docker build -t worker:${{ github.sha }} -t worker:latest ./worker
 
       - name: Build Frontend image
-        run: docker build -t frontend:${{ steps.vars.outputs.SHA }} -t frontend:latest ./frontend
+        run: docker build -t frontend:${{ github.sha }} -t frontend:latest ./frontend
 
       - name: Scan API image (fail on CRITICAL)
-        run: trivy image --severity CRITICAL --exit-code 1 api:${{ steps.vars.outputs.SHA }}
+        run: trivy image --severity CRITICAL --exit-code 1 api:${{ github.sha }}
 
       - name: Scan Worker image (fail on CRITICAL)
-        run: trivy image --severity CRITICAL --exit-code 1 worker:${{ steps.vars.outputs.SHA }}
+        run: trivy image --severity CRITICAL --exit-code 1 worker:${{ github.sha }}
 
       - name: Scan Frontend image (non-blocking)
-        run: trivy image --severity CRITICAL frontend:${{ steps.vars.outputs.SHA }}
+        run: trivy image --severity CRITICAL frontend:${{ github.sha }}
 
       - name: Generate SARIF report (API)
         run: trivy image --severity CRITICAL --exit-code 1 --format sarif -o trivy-api.sarif api:${{ github.sha }}
