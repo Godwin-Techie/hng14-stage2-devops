@@ -89,13 +89,22 @@ jobs:
         run: echo "SHA=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
       - name: Build API image
-        run: docker build -t api:${{ steps.vars.outputs.SHA }} -t api:latest ./api
+        run: |
+          DOCKER_BUILDKIT=1 docker build \
+          --cache-from=api:latest \
+          -t api:latest -t api:${{ github.sha }} ./api
 
       - name: Build Worker image
-        run: docker build -t worker:${{ steps.vars.outputs.SHA }} -t worker:latest ./worker
+        run: |
+          DOCKER_BUILDKIT=1 docker build \
+          --cache-from=worker:latest \
+          -t worker:latest -t worker:${{ github.sha }} ./worker
 
       - name: Build Frontend image
-        run: docker build -t frontend:${{ steps.vars.outputs.SHA }} -t frontend:latest ./frontend
+        run: |
+          DOCKER_BUILDKIT=1 docker build \
+          --cache-from=frontend:latest \
+          -t frontend:latest -t frontend:${{ github.sha }} ./frontend
 
   security:
     runs-on: ubuntu-latest
@@ -135,16 +144,16 @@ jobs:
         run: trivy image --severity CRITICAL frontend:${{ steps.vars.outputs.SHA }}
 
       - name: Generate SARIF report (API)
-        run: trivy image --format sarif -o trivy-api.sarif api:${{ steps.vars.outputs.SHA }} || true
+        run: trivy image --severity CRITICAL --exit-code 1 --format sarif -o trivy-api.sarif api:${{ github.sha }}
 
       - name: Generate SARIF report (Worker)
-        run: trivy image --format sarif -o trivy-worker.sarif worker:${{ steps.vars.outputs.SHA }} || true
+        run: trivy image --severity CRITICAL --exit-code 1 --format sarif -o trivy-worker.sarif worker:${{ github.sha }}
 
       - name: Generate SARIF report (Frontend)
-        run: trivy image --format sarif -o trivy-frontend.sarif frontend:${{ steps.vars.outputs.SHA }} || true
+        run: trivy image --severity CRITICAL --exit-code 1 --format sarif -o trivy-frontend.sarif frontend:${{ github.sha }}
 
       - name: Upload SARIF report (API)
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: trivy-api.sarif
 
@@ -183,7 +192,7 @@ jobs:
 
       - name: Test API from inside network
         run: |
-          docker compose ps 
+          docker ps 
           docker compose exec -T api curl http://localhost:8000
 
       - name: Tear down containers

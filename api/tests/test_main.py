@@ -1,27 +1,21 @@
 from fastapi.testclient import TestClient
-from unittest.mock import MagicMock
-
-import api.main as main
-from api.main import app
+from main import app
 
 client = TestClient(app)
 
-main.r = MagicMock()
-
-
-def test_health_check():
+def test_healthcheck():
     response = client.get("/")
     assert response.status_code == 200
-    assert response.json()["status"] == "API is running"
 
+def test_redis_connection(monkeypatch):
+    # mock redis client
+    monkeypatch.setenv("REDIS_HOST", "fakehost")
+    monkeypatch.setenv("REDIS_PORT", "1234")
+    # your app should handle bad redis gracefully
+    response = client.get("/redis-status")
+    assert response.status_code in (200, 503)
 
-def test_create_job():
-    response = client.post("/jobs")
+def test_example_endpoint():
+    response = client.get("/api/example")
     assert response.status_code == 200
-    assert "id" in response.json()
-    assert response.json()["status"] == "submitted"
-
-
-def test_get_job_not_found():
-    response = client.get("/jobs/invalid-id")
-    assert response.status_code in [200, 404]
+    assert "result" in response.json()

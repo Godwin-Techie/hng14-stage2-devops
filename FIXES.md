@@ -3,7 +3,7 @@ API SERVICES
 1. api/.env/
    file: .env/
    Issue: .env/ file is not suppose to be pushed to a Repo
-   fix: Deleted the file, since it was not even needed for the project at hand.
+   fix: moved it to the root folder and add it to .gitignore
 
 2. File: api/main.py  
    Line: 9  

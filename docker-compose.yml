@@ -21,11 +21,12 @@ services:
 
   api:
     build: ./api
-    expose:
-      - "8000"
+    ports:
+      - "8000:8000"
     environment:
       REDIS_HOST: ${REDIS_HOST}
       REDIS_PORT: ${REDIS_PORT}
+      API_URL: ${API_URL}
     depends_on:
       redis:
         condition: service_healthy
