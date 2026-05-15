@@ -11,7 +11,6 @@ FROM python:3.11-slim
 WORKDIR /app
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/* # install curl for healthcheck
 RUN adduser --disabled-password --gecos "" appuser
-COPY --from=builder /root/.local /home/appuser/.local
 COPY . .
 ENV PATH=/home/appuser/.local/bin:$PATH
 USER appuser
