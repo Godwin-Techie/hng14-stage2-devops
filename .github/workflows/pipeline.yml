@@ -27,7 +27,7 @@ jobs:
       - name: Run Python lint
         run: flake8 api worker
 
-      # ---------------- JavaScript Lint (eslint) ----------------
+      # JavaScript Lint (eslint)
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
@@ -76,3 +76,32 @@ jobs:
         with:
           name: coverage-report
           path: coverage.xml
+
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get commit SHA
+        id: vars
+        run: echo "SHA=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Build API image
+        run: |
+          DOCKER_BUILDKIT=1 docker build \
+          --cache-from=api:latest \
+          -t api:latest -t api:${{ github.sha }} ./api
+
+      - name: Build Worker image
+        run: |
+          DOCKER_BUILDKIT=1 docker build \
+          --cache-from=worker:latest \
+          -t worker:latest -t worker:${{ github.sha }} ./worker
+
+      - name: Build Frontend image
+        run: |
+          DOCKER_BUILDKIT=1 docker build \
+          --cache-from=frontend:latest \
+          -t frontend:latest -t frontend:${{ github.sha }} ./frontend
