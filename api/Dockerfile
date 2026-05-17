@@ -2,15 +2,20 @@
 # STAGE 1: BUILDER
 FROM python:3.11-slim AS builder
 WORKDIR /app
+RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
 
 
 # STAGE 2: RUNTIME
 FROM python:3.11-slim
 WORKDIR /app
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/* # install curl for healthcheck
+RUN apt-get update && apt-get upgrade -y \
+    && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
 RUN adduser --disabled-password --gecos "" appuser
+COPY --from=builder /usr/local /usr/local
 COPY . .
 ENV PATH=/home/appuser/.local/bin:$PATH
 USER appuser
